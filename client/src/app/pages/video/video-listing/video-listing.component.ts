@@ -20,6 +20,9 @@ export class VideoListingComponent implements OnInit {
   dialogRef: NbDialogRef<any>;
   videoUrl: string = "";
   videoExists: boolean = false;
+  startTime: any;
+  endTime: any;
+  frames: number;
 
   constructor(
     private dialogService: NbDialogService,
@@ -59,6 +62,14 @@ export class VideoListingComponent implements OnInit {
     );
   }
 
+  openProcessVideoModal(template: any) {
+    this.dialogRef = this.dialogService.open(template, {
+      hasScroll: true,
+      dialogClass: "model-full",
+      closeOnBackdropClick: false,
+    });
+  }
+
   playPause() {
     var myVideo: any = document.getElementById("play_video");
     if (myVideo.paused) {
@@ -69,6 +80,8 @@ export class VideoListingComponent implements OnInit {
   }
 
   processVideo() {
+    console.log(this.startTime);
+
     this.videoService.processVideo().subscribe(
       (res: any) => {
         console.log(res);

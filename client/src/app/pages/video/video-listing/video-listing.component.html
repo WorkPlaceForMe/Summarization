@@ -15,9 +15,9 @@
               <div class="pl-5 pr-5">
                 <button
                   class="btn-block"
-                  [status]="'primary'"
+                  [status]="'success'"
                   nbButton
-                  (click)="processVideo()"
+                  (click)="openProcessVideoModal(processVideoTemplate)"
                 >
                   Process Video
                 </button>
@@ -78,6 +78,61 @@
         >
           Play/Pause
         </button> -->
+        <button class="btn-block" nbButton (click)="closeModal()">
+          CLOSE
+        </button></nb-card-footer
+      >
+    </nb-card>
+  </div>
+</ng-template>
+
+<ng-template #processVideoTemplate>
+  <div>
+    <nb-card>
+      <nb-card-header>
+        <h6>Process Video</h6>
+      </nb-card-header>
+      <nb-card-body>
+        <div>
+          <span><b>Start Time: </b></span>
+          <input
+            nbInput
+            type="text"
+            [nbTimepicker]="startTimepicker"
+            [(ngModel)]="startTime"
+          />
+          <nb-timepicker #startTimepicker withSeconds></nb-timepicker>
+        </div>
+        <div style="display: block" class="pt-2">
+          <span><b>End Time: </b></span>
+          <input
+            nbInput
+            type="text"
+            [nbTimepicker]="endTimepicker"
+            [(ngModel)]="endTime"
+          />
+          <nb-timepicker #endTimepicker withSeconds></nb-timepicker>
+        </div>
+        <div style="display: block" class="pt-2">
+          <span><b>Frames: </b></span>
+          <input
+            nbInput
+            type="number"
+            placeholder="Enter Frames"
+            [(ngModel)]="frames"
+          />
+        </div>
+      </nb-card-body>
+
+      <nb-card-footer>
+        <button
+          class="btn-block"
+          [status]="'primary'"
+          nbButton
+          (click)="processVideo()"
+        >
+          Process
+        </button>
         <button class="btn-block" nbButton (click)="closeModal()">
           CLOSE
         </button></nb-card-footer
