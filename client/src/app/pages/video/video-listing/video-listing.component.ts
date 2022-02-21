@@ -86,8 +86,12 @@ export class VideoListingComponent implements OnInit {
 
   onSubmit() {
     const data = {
-      startTime: moment(this.processForm.value.startTime).format(timeFormat),
-      endTime: moment(this.processForm.value.endTime).format(timeFormat),
+      startTime: this.processForm.value.startTime
+        ? moment(this.processForm.value.startTime).format(timeFormat)
+        : "",
+      endTime: this.processForm.value.endTime
+        ? moment(this.processForm.value.endTime).format(timeFormat)
+        : "",
       frames: this.processForm.value.frames,
     };
 
