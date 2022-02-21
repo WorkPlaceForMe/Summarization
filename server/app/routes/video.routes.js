@@ -7,7 +7,7 @@ module.exports = function (app) {
   })
 
   app.get('/api/videos', controller.getVideos)
-  app.get('/api/video/process', controller.processVideo)
+  app.post('/api/video/process', controller.processVideo)
   app.get('/api/video', controller.getOutputVideo)
   // app.get('/api/videoFile', controller.sendVideoFile)
   app.get('/api/video/check', controller.checkOutputFile)

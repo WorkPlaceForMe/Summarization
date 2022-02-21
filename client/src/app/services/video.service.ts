@@ -13,8 +13,8 @@ export class VideoService {
     return this.http.get(`${this.API_URI}/videos`);
   }
 
-  processVideo() {
-    return this.http.get(`${this.API_URI}/video/process`);
+  processVideo(data: any) {
+    return this.http.post(`${this.API_URI}/video/process`, data);
   }
 
   getOutputVideo() {

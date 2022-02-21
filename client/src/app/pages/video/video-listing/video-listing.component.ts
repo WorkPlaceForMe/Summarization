@@ -2,6 +2,9 @@ import { Component, OnInit } from "@angular/core";
 import { trigger, style, animate, transition } from "@angular/animations";
 import { NbDialogRef, NbDialogService } from "@nebular/theme";
 import { VideoService } from "../../../services/video.service";
+import * as moment from "moment";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+const timeFormat = "HH:mm:ss";
 
 @Component({
   selector: "app-video-listing",
@@ -17,34 +20,26 @@ import { VideoService } from "../../../services/video.service";
   ],
 })
 export class VideoListingComponent implements OnInit {
+  processForm: FormGroup;
   dialogRef: NbDialogRef<any>;
   videoUrl: string = "";
   videoExists: boolean = false;
-  startTime: any;
-  endTime: any;
-  frames: number;
 
   constructor(
     private dialogService: NbDialogService,
-    private videoService: VideoService
+    private videoService: VideoService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit() {}
 
-  // openVideoModal(template: any) {
-  //   this.videoService.getOutputVideo().subscribe(
-  //     (res: any) => {
-  //       this.videoUrl = res.outputUrl;
-  //       this.dialogRef = this.dialogService.open(template, {
-  //         hasScroll: true,
-  //         dialogClass: "model-full",
-  //       });
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     }
-  //   );
-  // }
+  formInitialization() {
+    this.processForm = this.fb.group({
+      startTime: [""],
+      endTime: [""],
+      frames: [null, [Validators.min(5400)]],
+    });
+  }
 
   openVideoModal(template: any) {
     this.videoService.checkOutputVideo().subscribe(
@@ -63,6 +58,7 @@ export class VideoListingComponent implements OnInit {
   }
 
   openProcessVideoModal(template: any) {
+    this.formInitialization();
     this.dialogRef = this.dialogService.open(template, {
       hasScroll: true,
       dialogClass: "model-full",
@@ -79,12 +75,30 @@ export class VideoListingComponent implements OnInit {
     }
   }
 
-  processVideo() {
-    console.log(this.startTime);
+  // processVideo() {
+  //   this.videoService.processVideo().subscribe(
+  //     (res: any) => {
+  //       console.log(res);
+  //       alert(res.message);
+  //     },
+  //     (error) => {
+  //       console.log(error);
+  //       alert(error.error.message);
+  //     }
+  //   );
+  // }
 
-    this.videoService.processVideo().subscribe(
+  onSubmit() {
+    const data = {
+      startTime: moment(this.processForm.value.startTime).format(timeFormat),
+      endTime: moment(this.processForm.value.endTime).format(timeFormat),
+      frames: this.processForm.value.frames,
+    };
+    console.log(data);
+    this.videoService.processVideo(data).subscribe(
       (res: any) => {
         console.log(res);
+        this.closeModal();
         alert(res.message);
       },
       (error) => {
@@ -97,4 +111,19 @@ export class VideoListingComponent implements OnInit {
   closeModal() {
     this.dialogRef.close();
   }
+
+  // openVideoModal(template: any) {
+  //   this.videoService.getOutputVideo().subscribe(
+  //     (res: any) => {
+  //       this.videoUrl = res.outputUrl;
+  //       this.dialogRef = this.dialogService.open(template, {
+  //         hasScroll: true,
+  //         dialogClass: "model-full",
+  //       });
+  //     },
+  //     (error) => {
+  //       console.log(error);
+  //     }
+  //   );
+  // }
 }

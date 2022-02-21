@@ -4,8 +4,9 @@ require('dotenv').config({
 const fs = require('fs')
 const path = require('path')
 const {exec} = require('child_process')
+const moment = require('moment')
 
-exports.processVideo = async (req, res) => {
+exports.processVideo1 = async (req, res) => {
   try {
     const inputFilePath = '/home/Video_Summarization/demo/input.mp4'
 
@@ -24,6 +25,73 @@ exports.processVideo = async (req, res) => {
       })
       // const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh'
       const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh 11:11:11 22:22:22 5400'
+
+      exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(`output: ${stdout}`)
+          console.log(`error: ${stderr}`)
+        }
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error
+    })
+  }
+}
+
+exports.processVideo = async (req, res) => {
+  try {
+    const inputFilePath = '/home/Video_Summarization/demo/input.mp4'
+
+    if (!fs.existsSync(inputFilePath)) {
+      return res.status(400).json({
+        success: false,
+        error_code: 1,
+        message: 'Video file not found',
+        inputFilePath
+      })
+    } else {
+      const reqBody = req.body
+      if ((reqBody.startTime && !reqBody.endTime) || (!reqBody.startTime && reqBody.endTime)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Start time & End time both is required.'
+        })
+      }
+      if (reqBody.frames && reqBody.frames < 5400) {
+        return res.status(400).json({
+          success: false,
+          message: 'Frames value must be atleast 5400.'
+        })
+      }
+      if (reqBody.startTime && reqBody.endTime) {
+        const format = 'HH:mm:ss'
+        const difference = moment(reqBody.startTime, format).diff(moment(reqBody.endTime, format))
+        if (difference > 0) {
+          return res.status(400).send({
+            message: 'End time must be greater than start time'
+          })
+        }
+      }
+
+      console.log('file found')
+      res.status(200).send({
+        success: true,
+        message: 'Video is under process, it will ready soon.'
+      })
+      let cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh'
+      if (reqBody.startTime && reqBody.endTime) {
+        cmd = cmd + ' ' + reqBody.startTime + ' ' + reqBody.endTime
+      }
+      if (reqBody.frames) {
+        cmd = cmd + ' ' + reqBody.frames
+      }
+      // const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh 11:11:11 22:22:22 5400'
+      console.log(cmd, '==================CMD===================')
 
       exec(cmd, (err, stdout, stderr) => {
         if (err) {

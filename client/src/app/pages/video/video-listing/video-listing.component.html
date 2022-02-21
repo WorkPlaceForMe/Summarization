@@ -93,46 +93,68 @@
         <h6>Process Video</h6>
       </nb-card-header>
       <nb-card-body>
-        <div>
-          <span><b>Start Time: </b></span>
-          <input
-            nbInput
-            type="text"
-            [nbTimepicker]="startTimepicker"
-            [(ngModel)]="startTime"
-          />
-          <nb-timepicker #startTimepicker withSeconds></nb-timepicker>
-        </div>
-        <div style="display: block" class="pt-2">
-          <span><b>End Time: </b></span>
-          <input
-            nbInput
-            type="text"
-            [nbTimepicker]="endTimepicker"
-            [(ngModel)]="endTime"
-          />
-          <nb-timepicker #endTimepicker withSeconds></nb-timepicker>
-        </div>
-        <div style="display: block" class="pt-2">
-          <span><b>Frames: </b></span>
-          <input
-            nbInput
-            type="number"
-            placeholder="Enter Frames"
-            [(ngModel)]="frames"
-          />
-        </div>
+        <form [formGroup]="processForm" (ngSubmit)="onSubmit()">
+          <div>
+            <span><b>Start Time: </b></span>
+            <input
+              nbInput
+              type="text"
+              [nbTimepicker]="startTimepicker"
+              formControlName="startTime"
+            />
+            <nb-timepicker #startTimepicker withSeconds></nb-timepicker>
+          </div>
+          <div style="display: block" class="pt-2">
+            <span><b>End Time: </b></span>
+            <input
+              nbInput
+              type="text"
+              [nbTimepicker]="endTimepicker"
+              formControlName="endTime"
+            />
+            <nb-timepicker #endTimepicker withSeconds></nb-timepicker>
+          </div>
+          <div style="display: block" class="pt-2">
+            <span><b>Frames: </b></span>
+            <input
+              nbInput
+              type="number"
+              placeholder="Enter Frames"
+              formControlName="frames"
+            />
+            <p
+              *ngIf="
+                !processForm.controls.frames.valid &&
+                processForm.controls.frames.touched
+              "
+              class="error text-danger mb-1"
+            >
+              <span *ngIf="processForm.controls.frames.hasError('min')">
+                Frames value must be atleast 5400.
+              </span>
+            </p>
+          </div>
+          <div class="pt-2">
+            <button
+              class="btn-block"
+              [status]="'primary'"
+              nbButton
+              type="submit"
+              [disabled]="
+                !processForm.valid ||
+                (processForm.controls.startTime.value &&
+                  !processForm.controls.endTime.value) ||
+                (!processForm.controls.startTime.value &&
+                  processForm.controls.endTime.value)
+              "
+            >
+              Process
+            </button>
+          </div>
+        </form>
       </nb-card-body>
 
       <nb-card-footer>
-        <button
-          class="btn-block"
-          [status]="'primary'"
-          nbButton
-          (click)="processVideo()"
-        >
-          Process
-        </button>
         <button class="btn-block" nbButton (click)="closeModal()">
           CLOSE
         </button></nb-card-footer
