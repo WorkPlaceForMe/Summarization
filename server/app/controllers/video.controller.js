@@ -22,7 +22,8 @@ exports.processVideo = async (req, res) => {
         success: true,
         message: 'Video is under process, it will ready soon.'
       })
-      const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh'
+      // const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh'
+      const cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh 11:11:11 22:22:22 5400'
 
       exec(cmd, (err, stdout, stderr) => {
         if (err) {
