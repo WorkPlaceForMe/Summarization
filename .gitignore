@@ -1,4 +1,5 @@
 client/node_modules/
+client/dist
 server/node_modules/
 server/access.log
 server/resources/logoAirtel.png
@@ -18,3 +19,4 @@ server.zip
 config.env
 configDocker.env
 runDocker.sh
+video-summarization
