@@ -162,10 +162,10 @@
               type="submit"
               [disabled]="
                 !processForm.valid ||
-                (processForm.controls.startTime.value &&
-                  !processForm.controls.endTime.value) ||
-                (!processForm.controls.startTime.value &&
-                  processForm.controls.endTime.value)
+                (processForm.controls.startTime.value !== '' &&
+                  processForm.controls.endTime.value === '') ||
+                (processForm.controls.startTime.value === '' &&
+                  processForm.controls.endTime.value !== '')
               "
             >
               Process

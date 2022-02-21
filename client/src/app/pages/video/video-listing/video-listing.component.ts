@@ -76,8 +76,12 @@ export class VideoListingComponent implements OnInit {
   }
 
   clearStartOrEnd(type: string) {
-    this.processForm.get(type).reset();
     (<HTMLInputElement>document.getElementById(type)).value = "";
+    if (type === "startTime") {
+      this.processForm.patchValue({ startTime: "" });
+    } else {
+      this.processForm.patchValue({ endTime: "" });
+    }
   }
 
   onSubmit() {
@@ -89,7 +93,6 @@ export class VideoListingComponent implements OnInit {
 
     this.videoService.processVideo(data).subscribe(
       (res: any) => {
-        console.log(res);
         this.closeModal();
         alert(res.message);
       },
