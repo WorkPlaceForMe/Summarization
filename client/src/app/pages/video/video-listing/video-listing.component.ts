@@ -75,26 +75,13 @@ export class VideoListingComponent implements OnInit {
     }
   }
 
-  // processVideo() {
-  //   this.videoService.processVideo().subscribe(
-  //     (res: any) => {
-  //       console.log(res);
-  //       alert(res.message);
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //       alert(error.error.message);
-  //     }
-  //   );
-  // }
-
   onSubmit() {
     const data = {
       startTime: moment(this.processForm.value.startTime).format(timeFormat),
       endTime: moment(this.processForm.value.endTime).format(timeFormat),
       frames: this.processForm.value.frames,
     };
-    console.log(data);
+
     this.videoService.processVideo(data).subscribe(
       (res: any) => {
         console.log(res);
