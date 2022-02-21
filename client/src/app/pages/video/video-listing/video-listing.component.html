@@ -97,22 +97,42 @@
           <div>
             <span><b>Start Time: </b></span>
             <input
+              id="startTime"
               nbInput
               type="text"
               [nbTimepicker]="startTimepicker"
               formControlName="startTime"
             />
             <nb-timepicker #startTimepicker withSeconds></nb-timepicker>
+            <button
+              type="button"
+              class="btn-sm"
+              [status]="'primary'"
+              nbButton
+              (click)="clearStartOrEnd('startTime')"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
           <div style="display: block" class="pt-2">
             <span><b>End Time: </b></span>
             <input
+              id="endTime"
               nbInput
               type="text"
               [nbTimepicker]="endTimepicker"
               formControlName="endTime"
             />
             <nb-timepicker #endTimepicker withSeconds></nb-timepicker>
+            <button
+              type="button"
+              class="btn-sm"
+              [status]="'primary'"
+              nbButton
+              (click)="clearStartOrEnd('endTime')"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
           <div style="display: block" class="pt-2">
             <span><b>Frames: </b></span>

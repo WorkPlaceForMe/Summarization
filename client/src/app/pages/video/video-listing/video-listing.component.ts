@@ -75,6 +75,11 @@ export class VideoListingComponent implements OnInit {
     }
   }
 
+  clearStartOrEnd(type: string) {
+    this.processForm.get(type).reset();
+    (<HTMLInputElement>document.getElementById(type)).value = "";
+  }
+
   onSubmit() {
     const data = {
       startTime: moment(this.processForm.value.startTime).format(timeFormat),
