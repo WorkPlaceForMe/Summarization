@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 networks:
   dev:
@@ -26,18 +26,18 @@ services:
     depends_on:
       - mysql
     deploy:
-           resources:
-             reservations:
-               devices:
-                 - capabilities:
-                   - gpu
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+                - gpu
     network_mode: host
     #networks:
     #  - dev
     #ports:
     #  - 3300:3300
     volumes:
-      - /home/ubuntu/Video_Summarization/video-summarization/Video_Summarization:/home/Video_Summarization
+      - /home/ubuntu/Summarization/video-summarization/Video_Summarization:/home/Video_Summarization
     restart: always
 
   video-summarization-ui:
