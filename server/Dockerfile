@@ -1,0 +1,37 @@
+FROM yt/vs:v1
+
+RUN apt-get update
+
+RUN apt-get install curl -y
+
+WORKDIR /home/node
+
+RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+
+RUN bash nodesource_setup.sh
+
+RUN apt-get install -y nodejs
+
+RUN node -v
+
+WORKDIR /usr/src/app
+
+COPY server/package*.json ./
+
+RUN npm install
+
+COPY server/ .
+
+#RUN python --version
+
+#RUN curl  https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+
+#RUN python get-pip.py
+
+#RUN pip install opencv-python==4.2.0.32
+
+#RUN pip install mysql-connector-python
+
+EXPOSE 3300
+
+CMD [ "npm", "start" ]

@@ -1,0 +1,67 @@
+FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND="noninteractive" apt-get install -y python3-opencv
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y git-all wget curl zip unzip tar
+WORKDIR /usr/src
+RUN wget -qO- "https://cmake.org/files/v3.21/cmake-3.21.1-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local
+RUN git clone https://github.com/Microsoft/vcpkg.git && ./vcpkg/bootstrap-vcpkg.sh
+RUN wget https://github.com/opencv/opencv/archive/4.5.3.zip &&\
+    unzip 4.5.3.zip &&\
+    rm 4.5.3.zip &&\
+    wget https://github.com/opencv/opencv_contrib/archive/4.5.3.zip &&\
+    unzip 4.5.3.zip &&\
+    rm 4.5.3.zip &&\
+    mkdir /usr/src/opencv-4.5.3/build && cd /usr/src/opencv-4.5.3/build &&\
+    cmake \
+        -DOPENCV_EXTRA_MODULES_PATH=/usr/src/opencv_contrib-4.5.3/modules \
+        -DWITH_CUDA=ON \
+        -DCMAKE_BUILD_TYPE=RELEASE \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        .. &&\
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig &&\
+    rm -rf /usr/src/opencv-4.5.3 && rm -rf /usr/src/opencv_contrib-4.5.3
+
+#install AlexeyAB/darknet
+RUN git clone https://github.com/AlexeyAB/darknet
+COPY darknet/Makefile darknet
+RUN cd darknet &&\
+    mkdir build_release &&\
+    cd build_release &&\
+    cmake .. &&\
+    cmake --build . --target install --parallel 8
+
+#install flask deps
+WORKDIR /usr/src/py
+
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y python3-pip nano
+
+RUN pip3 install --upgrade pip
+COPY server/requirements.txt .
+RUN pip3 install -r requirements.txt
+
+WORKDIR /home/node
+
+RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+
+RUN bash nodesource_setup.sh
+
+RUN apt-get install -y nodejs
+
+RUN node -v
+
+WORKDIR /usr/src/app
+
+COPY server/package*.json ./
+
+RUN npm install
+
+COPY server/ .
+
+EXPOSE 3300
+
+CMD [ "npm", "start" ]
+
+
