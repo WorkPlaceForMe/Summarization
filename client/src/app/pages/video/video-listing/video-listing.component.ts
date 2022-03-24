@@ -21,6 +21,7 @@ const timeFormat = "HH:mm:ss";
 })
 export class VideoListingComponent implements OnInit {
   processForm: FormGroup;
+  uploadForm: FormGroup;
   dialogRef: NbDialogRef<any>;
   videoUrl: string = "";
   videoExists: boolean = false;
@@ -38,6 +39,10 @@ export class VideoListingComponent implements OnInit {
       startTime: [""],
       endTime: [""],
       frames: [null, [Validators.min(5400)]],
+    });
+
+    this.uploadForm = this.fb.group({
+      uploadVideo: [null, Validators.required]
     });
   }
 
@@ -57,7 +62,7 @@ export class VideoListingComponent implements OnInit {
     );
   }
 
-  openProcessVideoModal(template: any) {
+  openModal(template: any) {
     this.formInitialization();
     this.dialogRef = this.dialogService.open(template, {
       hasScroll: true,
@@ -84,7 +89,7 @@ export class VideoListingComponent implements OnInit {
     }
   }
 
-  onSubmit() {
+  onProcessVideoSubmit() {
     const data = {
       startTime: this.processForm.value.startTime
         ? moment(this.processForm.value.startTime).format(timeFormat)
@@ -110,19 +115,4 @@ export class VideoListingComponent implements OnInit {
   closeModal() {
     this.dialogRef.close();
   }
-
-  // openVideoModal(template: any) {
-  //   this.videoService.getOutputVideo().subscribe(
-  //     (res: any) => {
-  //       this.videoUrl = res.outputUrl;
-  //       this.dialogRef = this.dialogService.open(template, {
-  //         hasScroll: true,
-  //         dialogClass: "model-full",
-  //       });
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     }
-  //   );
-  // }
 }

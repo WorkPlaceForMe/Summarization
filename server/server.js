@@ -11,15 +11,10 @@ const mysql = require('mysql2/promise')
 const compression = require('compression')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
+const environment = require('./app/utils/environment')
 
-// const resourcesFolderPath =
-//   process.env.home + process.env.username + process.env.pathDocker + process.env.resources
 const resourcesFolderPath = path.resolve(__dirname, './resources/')
 const picResourceFolderPath = path.join(resourcesFolderPath)
-// const demoPath = '/home/ubuntu/YT/Video_Summarization/demo/'
-
-const demoPath = path.resolve(__dirname, './../../YT/Video_Summarization/demo/')
-const outputPath = '/home/Video_Summarization/demo/darknet/';
 
 app.use(compression())
 
@@ -103,11 +98,8 @@ if (process.env.INSTALL === 'true') {
           console.log('Drop and Resync Db')
           init.initial()
           connection.query(
-            'CREATE TABLE IF NOT EXISTS ' +
-              process.env.DB +
-              '.tickets (`id` varchar(45) NOT NULL,`type` varchar(45) NOT NULL,`createdAt`datetime NOT NULL, `updatedAt` datetime NOT NULL, `assigned` varchar(45) DEFAULT NULL, `id_account` varchar(45) NOT NULL, `id_branch` varchar(45) NOT NULL, `level` int(10) NOT NULL,`reviewed` varchar(45) DEFAULT NULL, `assignedBy` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`), UNIQUE KEY `id_UNIQUE` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1; CREATE TABLE ' +
-              process.env.DB +
-              '.`alerts` (`id` VARCHAR(45) NOT NULL,`time` DATETIME NULL,`alert` VARCHAR(45) NULL,`cam_name` VARCHAR(45) NULL,`cam_id` VARCHAR(45) NULL,`trackid` INT NULL,`alert_type` INT NULL,`id_account` VARCHAR(45) NULL,`id_branch` VARCHAR(45) NULL, PRIMARY KEY (`id`));'
+            `CREATE TABLE IF NOT EXISTS ${process.env.DB}.tickets ('id' varchar(45) NOT NULL, 'type' varchar(45) NOT NULL, 'createdAt' datetime NOT NULL, 'updatedAt' datetime NOT NULL, 'assigned' varchar(45) DEFAULT NULL, 'id_account' varchar(45) NOT NULL, 'id_branch' varchar(45) NOT NULL, 'level' int(10) NOT NULL, 'reviewed' varchar(45) DEFAULT NULL, 'assignedBy' varchar(45) DEFAULT NULL, PRIMARY KEY ('id'), UNIQUE KEY 'id_UNIQUE' ('id')) ENGINE=InnoDB DEFAULT CHARSET=latin1;              
+CREATE TABLE ${process.env.DB}.'alerts' ('id' VARCHAR(45) NOT NULL, 'time' DATETIME NULL,'alert' VARCHAR(45) NULL,           'cam_name' VARCHAR(45) NULL, 'cam_id' VARCHAR(45) NULL, 'trackid' INT NULL,'alert_type' INT NULL, 'id_account' VARCHAR(45) NULL,'id_branch' VARCHAR(45) NULL, PRIMARY KEY ('id'));`
           )
         })
       })
@@ -175,9 +167,9 @@ require('./app/routes/video.routes')(app)
 // resources being served
 app.use('/api/pictures', express.static(picResourceFolderPath))
 
-app.use('/assets/video', express.static(demoPath))
+app.use('/assets/video', express.static(environment.DEMO_PATH))
 
-app.use('/assets/output', express.static(outputPath))
+app.use('/assets/output', express.static(environment.OUTPUT_PATH))
 
 // client side
 // app.use(express.static(process.env.WEBSITE_PATH));

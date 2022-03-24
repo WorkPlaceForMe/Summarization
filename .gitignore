@@ -20,3 +20,5 @@ config.env
 configDocker.env
 runDocker.sh
 video-summarization
+.history
+.vscode

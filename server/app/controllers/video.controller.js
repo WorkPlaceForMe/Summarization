@@ -6,10 +6,10 @@ const path = require('path')
 const {exec} = require('child_process')
 const moment = require('moment')
 const {getVideoDurationInSeconds} = require('get-video-duration')
+const environment = require('../utils/environment')
 
 exports.processVideo = async (req, res) => {
   try {
-    const inputFilePath = '/home/Video_Summarization/demo/input.mp4'
     if (!fs.existsSync(inputFilePath)) {
       return res.status(400).json({
         success: false,
@@ -54,7 +54,7 @@ exports.processVideo = async (req, res) => {
         success: true,
         message: 'Video is under process, it will ready soon.'
       })
-      let cmd = 'bash /home/Video_Summarization/demo/darknet/demo.sh'
+      let cmd = `bash ${environment.VIDEO_CONVERTER_BASH_SCRIPT}`
       if (reqBody.startTime && reqBody.endTime) {
         cmd = cmd + ' ' + reqBody.startTime + ' ' + reqBody.endTime
       }
@@ -83,14 +83,12 @@ exports.processVideo = async (req, res) => {
 
 exports.checkOutputFile = async (req, res) => {
   try {
-    // const outputFilePath = path.resolve(__dirname, '../../resources/videos/b.mp4') // FOR TESTING
-    const outputFilePath = '/home/Video_Summarization/demo/darknet/output.mp4'
     const response = {
       success: true,
       output: false,
       apiUrl: `${process.env.app_url}/api/videoChunk`
     }
-    if (fs.existsSync(outputFilePath)) {
+    if (fs.existsSync(environment.OUTPUT_VIDEO_FILE)) {
       response.output = true
     }
     res.status(200).send(response)
@@ -104,9 +102,7 @@ exports.checkOutputFile = async (req, res) => {
 
 exports.getOutputVideoStream = async (req, res) => {
   try {
-    // const resolvedPath = path.resolve(__dirname, '../../resources/videos/b.mp4') // FOR TESTING
-    const resolvedPath = '/home/Video_Summarization/demo/darknet/output.mp4'
-    const stat = fs.statSync(resolvedPath)
+    const stat = fs.statSync(environment.OUTPUT_VIDEO_FILE)
     const fileSize = stat.size
 
     const requestRangeHeader = req.headers.range
@@ -117,11 +113,11 @@ exports.getOutputVideoStream = async (req, res) => {
         'Content-Type': 'video/webm'
       })
 
-      fs.createReadStream(resolvedPath).pipe(res)
+      fs.createReadStream(environment.OUTPUT_VIDEO_FILE).pipe(res)
     } else {
       const {start, end, chunkSize} = getChunkProps(requestRangeHeader, fileSize)
 
-      const readStream = fs.createReadStream(resolvedPath, {start, end})
+      const readStream = fs.createReadStream(environment.OUTPUT_VIDEO_FILE, {start, end})
 
       res.writeHead(206, {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -155,16 +151,14 @@ const getChunkProps = (range, fileSize) => {
 
 exports.getOutputVideo = async (req, res) => {
   try {
-    const outputFilePath = '/home/Video_Summarization/demo/darknet/output.mp4'
-    const response = {
+   const response = {
       success: true,
       outputUrl: ''
     }
 
-    if (fs.existsSync(outputFilePath)) {
+    if (fs.existsSync(environment.OUTPUT_VIDEO_FILE)) {
       response['outputUrl'] = `${process.env.app_url}/assets/output/output.mp4`
     }
-    // response['outputUrl'] = `${process.env.app_url}/assets/output/input.mp4` // FOR TESTING
     res.status(200).send(response)
   } catch (error) {
     res.status(500).json({

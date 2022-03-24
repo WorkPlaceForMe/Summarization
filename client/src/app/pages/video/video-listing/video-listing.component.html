@@ -17,7 +17,15 @@
                   class="btn-block"
                   [status]="'success'"
                   nbButton
-                  (click)="openProcessVideoModal(processVideoTemplate)"
+                  (click)="openModal(uploadVideoTemplate)"
+                >
+                  Upload Video
+                </button>
+                <button
+                  class="btn-block"
+                  [status]="'success'"
+                  nbButton
+                  (click)="openModal(processVideoTemplate)"
                 >
                   Process Video
                 </button>
@@ -93,7 +101,7 @@
         <h6>Process Video</h6>
       </nb-card-header>
       <nb-card-body>
-        <form [formGroup]="processForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="processForm" (ngSubmit)="onProcessVideoSubmit()">
           <div>
             <span><b>Start Time: </b></span>
             <input
@@ -169,6 +177,47 @@
               "
             >
               Process
+            </button>
+          </div>
+        </form>
+      </nb-card-body>
+
+      <nb-card-footer>
+        <button class="btn-block" nbButton (click)="closeModal()">
+          CLOSE
+        </button></nb-card-footer
+      >
+    </nb-card>
+  </div>
+</ng-template>
+
+<ng-template #uploadVideoTemplate>
+  <div class="pb-5">
+    <nb-card class="pb-5">
+      <nb-card-header>
+        <h6>Upload Video</h6>
+      </nb-card-header>
+      <nb-card-body>
+        <form [formGroup]="uploadForm" (ngSubmit)="onProcessVideoSubmit()">
+          <div style="display: block" class="pt-2">
+            <span><b>Upload Video: </b></span>
+            <input
+              nbInput
+              type="file"
+              accept="video/*" 
+              placeholder="Upload Video"
+              formControlName="uploadVideo"
+            />
+          </div>
+          <div class="pt-2">
+            <button
+              class="btn-block"
+              [status]="'primary'"
+              nbButton
+              type="submit"
+              [disabled]="!uploadForm.valid"
+            >
+              Upload Video
             </button>
           </div>
         </form>
