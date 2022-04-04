@@ -3,7 +3,7 @@ import { trigger, style, animate, transition } from "@angular/animations";
 import { NbDialogRef, NbDialogService } from "@nebular/theme";
 import { VideoService } from "../../../services/video.service";
 import * as moment from "moment";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from "@angular/forms";
 const timeFormat = "HH:mm:ss";
 
 @Component({
@@ -25,7 +25,7 @@ export class VideoListingComponent implements OnInit {
   dialogRef: NbDialogRef<any>;
   videoUrl: string = "";
   videoExists: boolean = false;
-
+  
   constructor(
     private dialogService: NbDialogService,
     private videoService: VideoService,
@@ -39,7 +39,7 @@ export class VideoListingComponent implements OnInit {
       startTime: [""],
       endTime: [""],
       frames: [null, [Validators.min(5400)]],
-    });
+    }, { validators: [this.checkStartTimeAndEndTime, this.checkEndTimeAndFrame] });
 
     this.uploadForm = this.fb.group({
       uploadVideo: [null, Validators.required]
@@ -112,7 +112,55 @@ export class VideoListingComponent implements OnInit {
     );
   }
 
+  onUploadVideoSubmit() {
+    const formData = new FormData();
+    formData.append('uploadVideo', this.uploadForm.get('uploadVideo').value);
+
+     this.videoService.uploadVideo(formData).subscribe(
+      (res: any) => {
+        this.closeModal();
+        alert(res.message);
+      },
+      (error) => {
+        console.log(error);
+        alert(error.error.message);
+      }
+    );
+  }
+
+  onFileSelect(event) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      this.uploadForm.get('uploadVideo').setValue(file);
+    }
+  }
+
   closeModal() {
     this.dialogRef.close();
+  }
+
+  checkStartTimeAndEndTime(control: AbstractControl): ValidationErrors | null { 
+    const startTime = control.get("startTime").value;
+    const endTime = control.get("endTime").value;
+
+    if (startTime && endTime) {
+      const difference = moment(startTime, timeFormat).diff(moment(endTime, timeFormat))
+      if (difference > 0) {
+        return { 'invalidStartTimeEndTime': true }
+      }
+    }
+ 
+    return null
+  }
+
+  checkEndTimeAndFrame(control: AbstractControl): ValidationErrors | null { 
+    const endTime = control.get("endTime").value;
+    const frames = control.get("frames").value;
+  
+    if (endTime && frames) { 
+      return { 'invalidEndTimeFrame': true } 
+    }
+ 
+    return null
   }
 }

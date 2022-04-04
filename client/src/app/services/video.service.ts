@@ -24,4 +24,8 @@ export class VideoService {
   checkOutputVideo() {
     return this.http.get(`${this.API_URI}/video/check`);
   }
+
+  uploadVideo(data: any) {
+    return this.http.post(`${this.API_URI}/video`, data);
+  }
 }

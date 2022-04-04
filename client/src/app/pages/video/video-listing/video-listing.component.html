@@ -159,6 +159,22 @@
             >
               <span *ngIf="processForm.controls.frames.hasError('min')">
                 Frames value must be atleast 5400.
+              </span>              
+            </p>
+            <p
+            *ngIf="processForm.errors?.['invalidStartTimeEndTime'] && (processForm.touched || processForm.dirty)"
+            class="error text-danger mb-1"
+          >
+            <span>
+              End time must be greater than start time
+            </span>
+          </p>
+            <p
+              *ngIf="processForm.errors?.['invalidEndTimeFrame'] && (processForm.touched || processForm.dirty)"
+              class="error text-danger mb-1"
+            >
+              <span>
+                Specify either End time or Frames
               </span>
             </p>
           </div>
@@ -169,12 +185,7 @@
               nbButton
               type="submit"
               [disabled]="
-                !processForm.valid ||
-                (processForm.controls.startTime.value !== '' &&
-                  processForm.controls.endTime.value === '') ||
-                (processForm.controls.startTime.value === '' &&
-                  processForm.controls.endTime.value !== '')
-              "
+                !processForm.valid"
             >
               Process
             </button>
@@ -198,7 +209,7 @@
         <h6>Upload Video</h6>
       </nb-card-header>
       <nb-card-body>
-        <form [formGroup]="uploadForm" (ngSubmit)="onProcessVideoSubmit()">
+        <form [formGroup]="uploadForm" (ngSubmit)="onUploadVideoSubmit()">
           <div style="display: block" class="pt-2">
             <span><b>Upload Video: </b></span>
             <input
@@ -207,6 +218,7 @@
               accept="video/*" 
               placeholder="Upload Video"
               formControlName="uploadVideo"
+              (change)="onFileSelect($event)"
             />
           </div>
           <div class="pt-2">

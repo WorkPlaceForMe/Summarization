@@ -31,6 +31,8 @@ module.exports = (sequelize, Sequelize) => {
     disabled: {
       type: Sequelize.INTEGER
     }
+  }, {
+    freezeTableName: true
   })
 
   return User

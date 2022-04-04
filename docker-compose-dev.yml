@@ -10,9 +10,9 @@ services:
     volumes:
       - ./mysql-v:/var/lib/mysql
     restart: always
-    network_mode: host
-    #ports:
-      #- 3306:3306
+    #network_mode: host
+    ports:
+      - 3307:3306
     environment:
       MYSQL_ROOT_PASSWORD: graymatics
       MYSQL_DATABASE: video_summarization
