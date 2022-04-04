@@ -218,6 +218,7 @@
               accept="video/*" 
               placeholder="Upload Video"
               formControlName="uploadVideo"
+              (change)="onFileSelect($event)"
             />
           </div>
           <div class="pt-2">
