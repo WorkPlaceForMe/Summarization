@@ -169,7 +169,7 @@ exports.getOutputVideoStream = async (req, res) => {
         "Content-Range": `bytes ${start}-${end}/${videoSize}`,
         "Accept-Ranges": "bytes",
         "Content-Length": contentLength,
-        "Content-Type": "video/mp4",
+        "Content-Type": "video/mp4"
       };
 
       console.log("********** Video headers ************* " + range)
@@ -177,9 +177,9 @@ exports.getOutputVideoStream = async (req, res) => {
       console.log("********** End ************* " + end)
       console.log("********** chunkSize ************* " + chunkSize)
 
-      res.writeHead(206, headers);
+      res.writeHead(206, headers)
       const videoStream = fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH, { start, end });
-      videoStream.pipe(res);
+      videoStream.pipe(res)
     }
   } catch (error) {
     res.status(500).json({
