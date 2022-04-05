@@ -88,7 +88,7 @@ exports.processVideo = async (req, res) => {
         cmd = cmd + ' --timestamp ' + reqBody.startTime
       }
       if (reqBody.frames) {
-        cmd = cmd + ' --duration ' + (reqBody.frames / 30)
+        cmd = cmd + ' --duration ' + Math.floor(reqBody.frames / 30)
       }
 
       console.log(cmd, '==================CMD===================')
