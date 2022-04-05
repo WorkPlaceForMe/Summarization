@@ -7,6 +7,7 @@
 
 ## Configuaration
 - Modify file client/src/app/models/IpServer.ts and replace 13.76.172.134 with localhost
+- Modify file server/config.env and set my_ip to 127.0.0.1
 - Install dependecies of node "npm install" on "server"'s folder and "client"'s folder
 - Navigate to project root folder and run 
     - sudo chmod a+x startContainer.sh
