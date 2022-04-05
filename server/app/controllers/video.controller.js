@@ -147,51 +147,45 @@ exports.checkOutputFile = async (req, res) => {
 }
 
 exports.getOutputVideoStream = async (req, res) => {
-  try {
-    const stat = fs.statSync(environment.OUTPUT_VIDEO_FILE_PATH)
-    const fileSize = stat.size
+  try {    
+    const videoSize = fs.statSync(environment.OUTPUT_VIDEO_FILE_PATH).size
 
-    const requestRangeHeader = req.headers.range
+    const range = req.headers.range
 
-    if (!requestRangeHeader) {
+    if (!range) {
       res.writeHead(200, {
-        'Content-Length': fileSize,
-        'Content-Type': 'video/webm'
+        'Content-Length': videoSize,
+        'Content-Type': 'video/mp4'
       })
 
       fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH).pipe(res)
-    } else {
-      const { start, end, chunkSize} = getChunkProps(requestRangeHeader, fileSize)
+    } else {   
+      const chunkSize = 10 ** 6
+      const start = Number(range.replace(/\D/g, ""))
+      const end = Math.min(start + chunkSize, videoSize - 1)
+      const contentLength = end - start + 1
+      
+      const headers = {
+        "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": contentLength,
+        "Content-Type": "video/mp4",
+      };
 
-      const readStream = fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH, {start, end})
+      console.log("********** Video headers ************* " + range)
+      console.log("********** Start ************* " + start)
+      console.log("********** End ************* " + end)
+      console.log("********** chunkSize ************* " + chunkSize)
 
-      res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': 'video/mp4'
-      })
-      readStream.pipe(res)
+      res.writeHead(206, headers);
+      const videoStream = fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH, { start, end });
+      videoStream.pipe(res);
     }
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error
     })
-  }
-}
-
-const getChunkProps = (range, fileSize) => {
-  const parts = range.replace(/bytes=/, '').split('-')
-
-  const start = parseInt(parts[0], 10)
-  const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
-  const chunkSize = end - start + 1
-
-  return {
-    start,
-    end,
-    chunkSize
   }
 }
 
