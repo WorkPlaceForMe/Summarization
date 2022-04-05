@@ -169,7 +169,7 @@ exports.getOutputVideoStream = async (req, res) => {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
-        'Content-Type': 'video/webm'
+        'Content-Type': 'video/mp4'
       })
       readStream.pipe(res)
     }
