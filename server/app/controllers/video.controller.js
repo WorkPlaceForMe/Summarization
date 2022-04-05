@@ -132,7 +132,7 @@ exports.checkOutputFile = async (req, res) => {
     const response = {
       success: true,
       output: false,
-      apiUrl: `${process.env.app_url}/api/videoChunk`
+      apiUrl: `/api/videoChunk`
     }
     if (fs.existsSync(environment.OUTPUT_VIDEO_FILE_PATH)) {
       response.output = true
