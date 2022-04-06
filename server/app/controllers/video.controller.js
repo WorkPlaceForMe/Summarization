@@ -94,8 +94,7 @@ exports.processVideo = async (req, res) => {
         success: true,
         message: 'Video is under process, it will be ready soon.'
       })
-      let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show --timestamp 
-      ${reqBody.startTime}`
+      let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show --timestamp ${reqBody.startTime}`
    
       if (reqBody.frames) {
         cmd = cmd + ' --duration ' + Math.floor(reqBody.frames / 30)
