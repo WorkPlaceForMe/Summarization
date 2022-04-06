@@ -24,7 +24,8 @@ export class VideoListingComponent implements OnInit {
   uploadForm: FormGroup;
   dialogRef: NbDialogRef<any>;
   videoUrl: string = "";
-  videoExists: boolean = false;
+  videoExists = false;
+  isVideoBeingUploaded = false;
   
   constructor(
     private dialogService: NbDialogService,
@@ -113,15 +114,18 @@ export class VideoListingComponent implements OnInit {
   }
 
   onUploadVideoSubmit() {
+    this.isVideoBeingUploaded = true
     const formData = new FormData();
     formData.append('uploadVideo', this.uploadForm.get('uploadVideo').value);
 
      this.videoService.uploadVideo(formData).subscribe(
       (res: any) => {
+        this.isVideoBeingUploaded = false;
         this.closeModal();
-        alert(res.message);
+        alert(res.message);        
       },
       (error) => {
+        this.isVideoBeingUploaded = false;
         console.log(error);
         alert(error.error.message);
       }

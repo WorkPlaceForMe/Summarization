@@ -55,20 +55,6 @@
         <div id="instructions" *ngIf="!videoExists">
           <span><b> There have no video yet!</b></span>
         </div>
-        <!-- <div id="instructions" *ngIf="videoUrl">
-          <video
-            id="play_video"
-            class="video-js vjs-default-skin"
-            width="640px"
-            height="267px"
-            controls
-            preload="none"
-            poster="http://13.76.172.134:3300/api/pictures/favicon1.ico"
-            data-setup='{ "aspectRatio":"640:267", "playbackRates": [1, 1.5, 2] }'
-          >
-            <source [src]="videoUrl" type="video/mp4" />
-          </video>
-        </div> -->
         <div id="instructions" *ngIf="videoExists">
           <video id="videoPlayer" width="650" controls muted="muted" autoplay>
             <source [src]="videoUrl" type="video/mp4" />
@@ -77,15 +63,6 @@
       </nb-card-body>
 
       <nb-card-footer>
-        <!-- <button
-          class="btn-block"
-          [status]="'warning'"
-          nbButton
-          (click)="playPause()"
-          [disabled]="!videoUrl"
-        >
-          Play/Pause
-        </button> -->
         <button class="btn-block" nbButton (click)="closeModal()">
           CLOSE
         </button></nb-card-footer
@@ -204,7 +181,7 @@
 
 <ng-template #uploadVideoTemplate>
   <div class="pb-5">
-    <nb-card class="pb-5">
+    <nb-card class="pb-5">     
       <nb-card-header>
         <h6>Upload Video</h6>
       </nb-card-header>
@@ -241,5 +218,6 @@
         </button></nb-card-footer
       >
     </nb-card>
+    <p *ngIf="isVideoBeingUploaded">Video is being uploaded, please wait.......</p>
   </div>
 </ng-template>
