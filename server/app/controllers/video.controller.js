@@ -11,6 +11,7 @@ const db = require('../models')
 
 exports.processVideo = async (req, res) => {
   const format = 'HH:mm:ss'
+  const defaultStartTime = '00:00:00'
   let difference = 0
 
   try {
@@ -45,6 +46,8 @@ exports.processVideo = async (req, res) => {
         difference = (reqBody.frames / 30) * 1000
       }
 
+      reqBody.startTime = reqBody.startTime ? reqBody.startTime : defaultStartTime
+
       if (reqBody.startTime && reqBody.endTime) {
         difference = moment(reqBody.endTime, format).diff(moment(reqBody.startTime, format))
         if (difference < 0) {
@@ -66,6 +69,15 @@ exports.processVideo = async (req, res) => {
         })
       }
 
+      const diffWithDefaultStartTime = moment(reqBody.startTime, format).diff(moment(defaultStartTime, format))
+
+      if (duration < diffWithDefaultStartTime / 1000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Start time is greater than actual video duration'
+        })
+      }
+
       if (duration < difference / 1000) {
         return res.status(400).json({
           success: false,
@@ -82,11 +94,9 @@ exports.processVideo = async (req, res) => {
         success: true,
         message: 'Video is under process, it will be ready soon.'
       })
-      let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show`
-
-      if (reqBody.startTime) {
-        cmd = cmd + ' --timestamp ' + reqBody.startTime
-      }
+      let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show --timestamp 
+      ${reqBody.startTime}`
+   
       if (reqBody.frames) {
         cmd = cmd + ' --duration ' + Math.floor(reqBody.frames / 30)
       }
