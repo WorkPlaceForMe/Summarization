@@ -36,9 +36,9 @@ exports.processVideo = async (req, res) => {
         })
       }
 
-      if (reqBody.frames && reqBody.endTime) {
-        const endTime = moment(reqBody.endTime, format).add(reqBody.frames / 30, 'second')
-        difference = moment(reqBody.endTime, format).diff(endTime)
+      if (reqBody.frames && reqBody.startTime) {
+        const endTime = moment(reqBody.startTime, format).add(reqBody.frames / 30, 'second')
+        difference = endTime.diff(moment(reqBody.startTime, format))
       }
 
       if (reqBody.frames && !reqBody.endTime) {
@@ -92,8 +92,7 @@ exports.processVideo = async (req, res) => {
       }
 
       //Add ffmpege conversion command
-
-      cmd = cmd + ' && ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4 && cp output_x264.mp4 output.mp4'
+      cmd = cmd + ' && ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4 -y && mv output_x264.mp4 output.mp4'
 
       console.log(cmd, '==================CMD===================')
       db.progress.create({
