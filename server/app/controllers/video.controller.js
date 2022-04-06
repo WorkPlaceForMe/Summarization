@@ -91,6 +91,10 @@ exports.processVideo = async (req, res) => {
         cmd = cmd + ' --duration ' + Math.floor(reqBody.frames / 30)
       }
 
+      //Add ffmpege conversion command
+
+      cmd = cmd + ' && ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4 && cp output_x264.mp4 output.mp4'
+
       console.log(cmd, '==================CMD===================')
       db.progress.create({
         progress_value: 1
