@@ -50,6 +50,13 @@ exports.processVideo = async (req, res) => {
         })
       }
 
+      if (duration < Math.floor(reqBody.duration * 60)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Duration specified is greater than actual video length'
+        })
+      }
+
       const diffWithDefaultStartTime = moment(reqBody.startTime, format).diff(moment(defaultStartTime, format))
 
       if (duration < diffWithDefaultStartTime / 1000) {

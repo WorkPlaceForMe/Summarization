@@ -129,12 +129,11 @@
             />
             <p
               *ngIf="
-                !processForm.controls.duration.valid &&
-                processForm.controls.duration.touched
+                !processForm.controls.duration.valid
               "
               class="error text-danger mb-1"
             >
-              <span *ngIf="!processForm.controls.duration.valid">
+              <span>
                 Duration value must be atleast 3 minutes
               </span>              
             </p>
