@@ -39,8 +39,8 @@ export class VideoListingComponent implements OnInit {
     this.processForm = this.fb.group({
       startTime: [""],
       endTime: [""],
-      frames: [null, [Validators.min(5400)]],
-    }, { validators: [this.checkStartTimeAndEndTime, this.checkEndTimeAndFrame] });
+      duration: [null, [Validators.min(3)]],
+    }, { validators: [this.checkStartTimeAndEndTime] });
 
     this.uploadForm = this.fb.group({
       uploadVideo: [null, Validators.required]
@@ -98,7 +98,7 @@ export class VideoListingComponent implements OnInit {
       endTime: this.processForm.value.endTime
         ? moment(this.processForm.value.endTime).format(timeFormat)
         : "",
-      frames: this.processForm.value.frames,
+      duration: this.processForm.value.duration,
     };
 
     this.videoService.processVideo(data).subscribe(
@@ -149,20 +149,9 @@ export class VideoListingComponent implements OnInit {
 
     if (startTime && endTime) {
       const difference = moment(startTime, timeFormat).diff(moment(endTime, timeFormat))
-      if (difference > 0) {
+      if (difference >= 0) {
         return { 'invalidStartTimeEndTime': true }
       }
-    }
- 
-    return null
-  }
-
-  checkEndTimeAndFrame(control: AbstractControl): ValidationErrors | null { 
-    const endTime = control.get("endTime").value;
-    const frames = control.get("frames").value;
-  
-    if (endTime && frames) { 
-      return { 'invalidEndTimeFrame': true } 
     }
  
     return null

@@ -120,22 +120,22 @@
             </button>
           </div>
           <div style="display: block" class="pt-2">
-            <span><b>Frames: </b></span>
+            <span><b>Duration(Minutes): </b></span>
             <input
               nbInput
               type="number"
-              placeholder="Enter Frames"
-              formControlName="frames"
+              placeholder="Enter Duration"
+              formControlName="duration"
             />
             <p
               *ngIf="
-                !processForm.controls.frames.valid &&
-                processForm.controls.frames.touched
+                !processForm.controls.duration.valid &&
+                processForm.controls.duration.touched
               "
               class="error text-danger mb-1"
             >
-              <span *ngIf="processForm.controls.frames.hasError('min')">
-                Frames value must be atleast 5400.
+              <span *ngIf="!processForm.controls.duration.valid">
+                Duration value must be atleast 3 minutes
               </span>              
             </p>
             <p
@@ -146,14 +146,6 @@
               End time must be greater than start time
             </span>
           </p>
-            <p
-              *ngIf="processForm.errors?.['invalidEndTimeFrame'] && (processForm.touched || processForm.dirty)"
-              class="error text-danger mb-1"
-            >
-              <span>
-                Specify either End time or Frames
-              </span>
-            </p>
           </div>
           <div class="pt-2">
             <button

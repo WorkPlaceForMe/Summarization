@@ -24,40 +24,21 @@ exports.processVideo = async (req, res) => {
       })
     } else {
       const reqBody = req.body
-      if (reqBody.endTime && reqBody.frames) {
+      if (reqBody.duration && reqBody.duration < 3) {
         return res.status(400).json({
           success: false,
-          message: 'Specify either End time or Frames'
-        })
-      }
-      if (reqBody.frames && reqBody.frames < 5400) {
-        return res.status(400).json({
-          success: false,
-          message: 'Frames value must be atleast 5400.'
+          message: 'Duration value must be atleast 3 minutes'
         })
       }
 
-      if (reqBody.frames && reqBody.startTime) {
-        const endTime = moment(reqBody.startTime, format).add(reqBody.frames / 30, 'second')
-        difference = endTime.diff(moment(reqBody.startTime, format))
-      }
-
-      if (reqBody.frames && !reqBody.endTime) {
-        difference = (reqBody.frames / 30) * 1000
-      }
-
-      reqBody.startTime = reqBody.startTime ? reqBody.startTime : defaultStartTime
+     reqBody.startTime = reqBody.startTime ? reqBody.startTime : defaultStartTime
 
       if (reqBody.startTime && reqBody.endTime) {
         difference = moment(reqBody.endTime, format).diff(moment(reqBody.startTime, format))
-        if (difference < 0) {
+        if (difference <= 0) {
           return res.status(400).send({
             message: 'End time must be greater than start time'
           })
-        }
-
-        if (!reqBody.frames) {
-          reqBody.frames = difference * 30 / 1000
         }
       }
 
@@ -81,12 +62,12 @@ exports.processVideo = async (req, res) => {
       if (duration < difference / 1000) {
         return res.status(400).json({
           success: false,
-          message: 'End time or frames size is greater than actual video duration'
+          message: 'End time greater than actual video duration'
         })
       }
 
-      if (duration && !reqBody.frames) {
-        reqBody.frames = duration * 30
+      if (!reqBody.duration) {
+        reqBody.duration = 3
       }
 
       console.log('file found')
@@ -96,8 +77,8 @@ exports.processVideo = async (req, res) => {
       })
       let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show --timestamp ${reqBody.startTime}`
    
-      if (reqBody.frames) {
-        cmd = cmd + ' --duration ' + Math.floor(reqBody.frames / 30)
+      if (reqBody.duration) {
+        cmd = cmd + ' --duration ' + Math.floor(reqBody.duration * 60)
       }
 
       //Add ffmpege conversion command
