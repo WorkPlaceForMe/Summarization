@@ -22,18 +22,6 @@ RUN npm install
 
 RUN npm install -g nodemon
 
-#COPY server/ .
-
-#RUN python --version
-
-#RUN curl  https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-
-#RUN python get-pip.py
-
-#RUN pip install opencv-python==4.2.0.32
-
-#RUN pip install mysql-connector-python
-
 EXPOSE 3300
 
 CMD [ "npm", "run", "dev" ]
