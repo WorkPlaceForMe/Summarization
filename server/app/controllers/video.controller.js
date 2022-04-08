@@ -78,7 +78,7 @@ exports.processVideo = async (req, res) => {
       }
 
       if(!reqBody.endTime){
-        reqBody.endTime = moment.utc(moment.duration(duration, 'seconds')).format(this.format)
+        reqBody.endTime = moment.utc(moment.duration(duration, 'seconds').as('milliseconds')).format(this.format)
       }
 
       console.log('file found')
