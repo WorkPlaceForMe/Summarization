@@ -21,7 +21,6 @@ do
 done
 
 rm -f output_x264.mp4
-rm -f output.mp4
 
 ffmpeg -ss $startTime -to $endTime -i input.mp4 -c copy input_trimmed.mp4
 mv input_trimmed.mp4 input.mp4
