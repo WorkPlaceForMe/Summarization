@@ -1,16 +1,11 @@
 version: "3"
 
-#networks:
-  #dev:
-    #external: true
-
 services:
   mysql:
     image: mysql:5.7
     volumes:
       - ./mysql-v:/var/lib/mysql
     restart: always
-    #network_mode: host
     ports:
       - 3307:3306
     environment:
@@ -31,11 +26,8 @@ services:
           #devices:
             #- capabilities:
                 #- gpu
-    network_mode: host
-    #networks:
-    #  - dev
-    #ports:
-    #  - 3300:3300
+    ports:
+      - 3300:3300
     volumes:
       - ./video-summarization/Video_Summarization:/home/Video_Summarization
       - ./server:/usr/src/app
@@ -46,14 +38,9 @@ services:
     build:
       context: ./
       dockerfile: ./client/Dockerfile-dev
-    depends_on:
-      - video-summarization-server
     restart: always
-    network_mode: host
-    #networks:
-      #- dev
-    #ports:
-      #- 80:80
+    ports:
+      - 4200:4200
     volumes:
       - ./client:/app
       - /app/node_modules

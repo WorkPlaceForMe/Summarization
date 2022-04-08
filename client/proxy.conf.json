@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://127.0.0.1:3300",
+    "target": "http://video-summarization-server:3300",
     "secure": false,
     "changeOrigin": true
   }
