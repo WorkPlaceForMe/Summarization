@@ -77,19 +77,29 @@ exports.processVideo = async (req, res) => {
         reqBody.duration = 3
       }
 
+      if(!reqBody.endTime){
+        reqBody.endTime = moment.utc(duration.as('milliseconds')).format(this.format)
+      }
+
       console.log('file found')
       res.status(200).send({
         success: true,
         message: 'Video is under process, it will be ready soon.'
       })
-      let cmd = `python3 ${environment.VIDEO_CONVERTER_PYTHON_SCRIPT} --input ${environment.INPUT_VIDEO_FILE_PATH} --out_filename ${environment.OUTPUT_VIDEO_FILE_PATH} --dont_show --timestamp ${reqBody.startTime}`
-   
-      if (reqBody.duration) {
-        cmd = cmd + ' --duration ' + Math.floor(reqBody.duration * 60)
+      
+      let cmd = `sh demo.sh`
+
+      if (reqBody.startTime) {
+        cmd = cmd + ' -s ' + reqBody.startTime
       }
 
-      //Add ffmpege conversion command
-      cmd = cmd + ' && ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4 -y && mv output_x264.mp4 output.mp4'
+      if (reqBody.endTime) {
+        cmd = cmd + ' -e ' + reqBody.endTime
+      }
+   
+      if (reqBody.duration) {
+        cmd = cmd + ' -d ' + Math.floor(reqBody.duration * 60)
+      }
 
       console.log(cmd, '==================CMD===================')
       db.progress.create({
