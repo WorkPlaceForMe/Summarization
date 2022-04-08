@@ -20,12 +20,10 @@ do
    esac
 done
 
-rm -f output_x264.mp4
-
 ffmpeg -ss $startTime -to $endTime -i input.mp4 -c copy input_trimmed.mp4
 mv input_trimmed.mp4 input.mp4
 
 python3 demo_video_summarization.py --input input.mp4 --dont_show --duration $duration
 
 ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4
-cp output_x264.mp4 output.mp4
+mv output_x264.mp4 output.mp4
