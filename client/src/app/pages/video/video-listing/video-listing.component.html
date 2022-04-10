@@ -79,6 +79,15 @@
       </nb-card-header>
       <nb-card-body>
         <form [formGroup]="processForm" (ngSubmit)="onProcessVideoSubmit()">
+          <div style="display: block" class="pt-2">
+            <span><b>Input Video File Name: </b></span>
+            <input
+              nbInput
+              type="text"
+              placeholder="Enter Input Video file name"
+              formControlName="inputFileName"
+            />
+          </div>
           <div>
             <span><b>Start Time: </b></span>
             <input

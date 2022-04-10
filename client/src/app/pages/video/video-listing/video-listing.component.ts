@@ -37,6 +37,7 @@ export class VideoListingComponent implements OnInit {
 
   formInitialization() {
     this.processForm = this.fb.group({
+      inputFileName: [""],
       startTime: [""],
       endTime: [""],
       duration: [null, [Validators.min(3)]],
@@ -92,6 +93,7 @@ export class VideoListingComponent implements OnInit {
 
   onProcessVideoSubmit() {
     const data = {
+      inputFileName: this.processForm.value.inputFileName,
       startTime: this.processForm.value.startTime
         ? moment(this.processForm.value.startTime).format(timeFormat)
         : "",

@@ -10,17 +10,22 @@ const environment = require('../utils/environment')
 const db = require('../models')
 
 exports.processVideo = async (req, res) => {
+  let inputVideoFile = environment.INPUT_VIDEO_FILE_PATH
   const format = 'HH:mm:ss'
   const defaultStartTime = '00:00:00'
   let difference = 0
 
+  if(reqBody.inputFileName && reqBody.inputFileName.trim() !== ''){
+    inputVideoFile = environment.INPUT_PATH + '/' + reqBody.inputFileName
+  }
+
   try {
-    if (!fs.existsSync(environment.INPUT_VIDEO_FILE_PATH)) {
+    if (!fs.existsSync(inputVideoFile)) {
       return res.status(400).json({
         success: false,
         error_code: 1,
         message: 'Video file not found',
-        inputFilePath: environment.INPUT_VIDEO_FILE_PATH
+        inputFilePath: inputVideoFile
       })
     } else {
       const reqBody = req.body
@@ -87,7 +92,7 @@ exports.processVideo = async (req, res) => {
         message: 'Video is under process, it will be ready soon.'
       })
       
-      let cmd = `sh demo.sh`
+      let cmd = `sh demo.sh -i ${inputVideoFile} -o ${environment.OUTPUT_VIDEO_FILE_PATH}`
 
       if (reqBody.startTime) {
         cmd = cmd + ' -s ' + reqBody.startTime
