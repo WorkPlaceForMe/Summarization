@@ -24,10 +24,10 @@ do
    esac
 done
 
-ffmpeg -ss $startTime -to $endTime -i $inputFileName -c copy input_trimmed.mp4
+ffmpeg -i $inputFileName -ss $startTime -to $endTime -c copy input_trimmed.mp4
 mv input_trimmed.mp4 input.mp4
 
-python3 demo_video_summarization.py --input $inputFileName --out_filename $outputFileName --duration $duration --dont_show
+python3 demo_video_summarization.py --input input.mp4 --out_filename $outputFileName --duration $duration --dont_show
 
 ffmpeg -i $outputFileName -vcodec libx264 output_x264.mp4
-mv output_x264.mp4 output.mp4
+mv output_x264.mp4 $outputFileName
