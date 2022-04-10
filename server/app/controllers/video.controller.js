@@ -12,6 +12,7 @@ const db = require('../models')
 exports.processVideo = async (req, res) => {
   let inputVideoFile = environment.INPUT_VIDEO_FILE_PATH
   const format = 'HH:mm:ss'
+  const reqBody = req.body
   const defaultStartTime = '00:00:00'
   let difference = 0
 
@@ -28,7 +29,6 @@ exports.processVideo = async (req, res) => {
         inputFilePath: inputVideoFile
       })
     } else {
-      const reqBody = req.body
       if (reqBody.duration && reqBody.duration < 3) {
         return res.status(400).json({
           success: false,
