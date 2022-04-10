@@ -29,5 +29,5 @@ mv input_trimmed.mp4 input.mp4
 
 python3 demo_video_summarization.py --input $inputFileName --out_filename $outputFileName --duration $duration --dont_show
 
-ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4
+ffmpeg -i $outputFileName -vcodec libx264 output_x264.mp4
 mv output_x264.mp4 output.mp4
