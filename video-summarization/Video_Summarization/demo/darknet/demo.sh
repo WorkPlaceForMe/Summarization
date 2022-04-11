@@ -24,6 +24,8 @@ do
    esac
 done
 
+rm -f $outputFileName
+
 ffmpeg -i $inputFileName -ss $startTime -to $endTime -c copy input_trimmed.mp4 -y
 
 python3 demo_video_summarization.py --input input_trimmed.mp4 --out_filename $outputFileName --duration $duration --dont_show
