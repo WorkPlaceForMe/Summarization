@@ -116,7 +116,7 @@ exports.processVideo = async (req, res) => {
 
       databaseService.createProgressData(inputVideoFile, outputVideoFile, reqBody.clientId).then(progress => {
         if (progress) {
-          console.log('Progress data created with id' + progress.id)
+          console.log('Progress data created with id: ' + progress.id)
 
           exec(cmd,
             {
