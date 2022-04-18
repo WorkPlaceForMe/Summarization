@@ -7,6 +7,7 @@ const moment = require('moment')
 const { getVideoDurationInSeconds } = require('get-video-duration')
 const environment = require('../utils/environment')
 const databaseService = require('../services/database.service')
+const path = require('path')
 
 exports.processVideo = async (req, res) => {
   let inputVideoFile = process.env.VIDEO_PATH + environment.DEFAULT_VIDEO_FILE_NAME
@@ -14,6 +15,10 @@ exports.processVideo = async (req, res) => {
   const reqBody = req.body
   const defaultStartTime = '00:00:00'
   let difference = 0
+
+  if (reqBody.inputFileName && reqBody.inputFileName.includes('\\')) {
+    reqBody.inputFileName = reqBody.inputFileName.split('\\').join(path.posix.sep)
+  }
 
   if (reqBody.inputFileName && reqBody.inputFileName.trim() !== '') {
     inputVideoFile = reqBody.inputFileName
@@ -185,6 +190,10 @@ exports.getOutputVideoStream = async (req, res) => {
       req.query.clientId = environment.DEFAULT_CLIENT_ID
     }
 
+    if (req.query.inputFileName && req.query.inputFileName.includes('\\')) {
+      req.query.inputFileName = req.query.inputFileName.split('\\').join(path.posix.sep)
+    }
+
     databaseService.findProgressData(req.query.inputFileName, req.query.clientId, 1).then(data => {
       if (data) {
         if (fs.existsSync(data.output_file_path)) {
@@ -273,6 +282,11 @@ exports.getVideoList = async (req, res) => {
     if (!req.query.clientId) {
       req.query.clientId = environment.DEFAULT_CLIENT_ID
     }
+
+    if (req.query.inputFileName && req.query.inputFileName.includes('\\')) {
+      req.query.inputFileName = req.query.inputFileName.split('\\').join(path.posix.sep)
+    }
+
     databaseService.findProgressDataList(req.query.inputFileName, req.query.clientId).then(data => {
       if (data) {
         res.status(200).json({
