@@ -2,22 +2,21 @@ require('dotenv').config({
   path: '../../config.env'
 })
 const fs = require('fs')
-const path = require('path')
 const { exec } = require('child_process')
 const moment = require('moment')
 const { getVideoDurationInSeconds } = require('get-video-duration')
 const environment = require('../utils/environment')
-const db = require('../models')
+const databaseService = require('../services/database.service')
 
 exports.processVideo = async (req, res) => {
-  let inputVideoFile = environment.INPUT_VIDEO_FILE_PATH
+  let inputVideoFile = process.env.VIDEO_PATH + environment.DEFAULT_VIDEO_FILE_NAME
   const format = 'HH:mm:ss'
   const reqBody = req.body
   const defaultStartTime = '00:00:00'
   let difference = 0
 
-  if(reqBody.inputFileName && reqBody.inputFileName.trim() !== ''){
-    inputVideoFile = environment.INPUT_PATH + '/' + reqBody.inputFileName
+  if (reqBody.inputFileName && reqBody.inputFileName.trim() !== '') {
+    inputVideoFile = reqBody.inputFileName
   }
 
   try {
@@ -36,7 +35,7 @@ exports.processVideo = async (req, res) => {
         })
       }
 
-     reqBody.startTime = reqBody.startTime ? reqBody.startTime : defaultStartTime
+      reqBody.startTime = reqBody.startTime ? reqBody.startTime : defaultStartTime
 
       if (reqBody.startTime && reqBody.endTime) {
         difference = moment(reqBody.endTime, format).diff(moment(reqBody.startTime, format))
@@ -47,7 +46,7 @@ exports.processVideo = async (req, res) => {
         }
       }
 
-      const duration = await getVideoDurationInSeconds(environment.INPUT_VIDEO_FILE_PATH)
+      const duration = await getVideoDurationInSeconds(inputVideoFile)
       if (duration <= 180) {
         return res.status(400).json({
           success: false,
@@ -82,17 +81,20 @@ exports.processVideo = async (req, res) => {
         reqBody.duration = 3
       }
 
-      if(!reqBody.endTime){
+      if (!reqBody.endTime) {
         reqBody.endTime = moment.utc(moment.duration(duration, 'seconds').as('milliseconds')).format(format)
       }
 
-      console.log('file found')
       res.status(200).send({
         success: true,
         message: 'Video is under process, it will be ready soon.'
       })
-      
-      let cmd = `sh demo.sh -i ${inputVideoFile} -o ${environment.OUTPUT_VIDEO_FILE_PATH}`
+
+      const outputVideoFileExtension = inputVideoFile.split('.').pop()
+      const outputVideoFile = inputVideoFile.substring(0, inputVideoFile.lastIndexOf('.')) +
+              environment.OUTPUT_VIDEO_FILE_NAME_SUFFIX + '.' + outputVideoFileExtension
+
+      let cmd = `sh demo.sh -i ${inputVideoFile} -o ${outputVideoFile}`
 
       if (reqBody.startTime) {
         cmd = cmd + ' -s ' + reqBody.startTime
@@ -101,38 +103,43 @@ exports.processVideo = async (req, res) => {
       if (reqBody.endTime) {
         cmd = cmd + ' -e ' + reqBody.endTime
       }
-   
+
       if (reqBody.duration) {
         cmd = cmd + ' -d ' + Math.floor(reqBody.duration * 60)
       }
 
-      console.log(cmd, '==================CMD===================')
-      db.progress.create({
-        progress_value: 1
-      }).then(progress => {
+      if (!reqBody.clientId) {
+        reqBody.clientId = environment.DEFAULT_CLIENT_ID
+      }
+
+      console.log(`Client with clientId: ${reqBody.clientId} submitted this command for processing.... ${cmd}`)
+
+      databaseService.createProgressData(inputVideoFile, outputVideoFile, reqBody.clientId).then(progress => {
         if (progress) {
-          console.log('Progress data created ' + progress)
+          console.log('Progress data created with id' + progress.id)
+
+          exec(cmd,
+            {
+              cwd: `${environment.VIDEO_CONVERTER_PYTHON_SCRIPT_HOME_PATH}`
+            },
+            (err, stdout, stderr) => {
+              if (err) {
+                databaseService
+                  .updateProgressData(progress.id, -1)
+                  .then(() => console.log('Row updated for error'))
+                console.log('======= Video Processing failed =======')
+                console.log(`error: ${err}`)
+              } else {
+                console.log('======= Video Processing succeeded =======')
+                databaseService
+                  .updateProgressData(progress.id, 1)
+                  .then(() => console.log('Row updated for success'))
+                console.log(`stdout: ${stdout}`)
+                console.log(`stderr: ${stderr}`)
+              }
+            })
         }
       })
-
-      exec(cmd,
-        {
-          cwd: `${environment.OUTPUT_PATH}`
-        },
-        (err, stdout, stderr) => {
-          if (err) {
-            console.log(`error:  ${err}`)
-          } else {
-            console.log(`stdout: ${stdout}`)
-            console.log(`stderr: ${stderr}`)
-          }
-
-          db.progress.destroy({
-            where: { progress_value: 1 }
-          }).then(() => {
-            console.log('Row deleted successfully from progress table')
-          })
-        })
     }
   } catch (error) {
     res.status(500).json({
@@ -147,12 +154,23 @@ exports.checkOutputFile = async (req, res) => {
     const response = {
       success: true,
       output: false,
-      apiUrl: `/api/videoChunk`
+      apiUrl: '/api/videoChunk'
     }
-    if (fs.existsSync(environment.OUTPUT_VIDEO_FILE_PATH)) {
-      response.output = true
+
+    console.log('Client id: ' + req.body.clientId)
+    if (!req.body.clientId) {
+      req.body.clientId = environment.DEFAULT_CLIENT_ID
     }
-    res.status(200).send(response)
+    databaseService.findProgressData(req.body.inputFileName, req.body.clientId, 1).then(data => {
+      if (data) {
+        if (fs.existsSync(data.output_file_path)) {
+          response.output = true
+        }
+      } else {
+        response.output = false
+      }
+      res.status(200).send(response)
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -162,88 +180,58 @@ exports.checkOutputFile = async (req, res) => {
 }
 
 exports.getOutputVideoStream = async (req, res) => {
-  try {    
-    const videoSize = fs.statSync(environment.OUTPUT_VIDEO_FILE_PATH).size
-
-    const range = req.headers.range
-
-    if (!range) {
-      res.writeHead(200, {
-        'Content-Length': videoSize,
-        'Content-Type': 'video/mp4'
-      })
-
-      fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH).pipe(res)
-    } else {   
-      const chunkSize = 10 ** 6
-      const start = Number(range.replace(/\D/g, ""))
-      const end = Math.min(start + chunkSize, videoSize - 1)
-      const contentLength = end - start + 1
-      
-      const headers = {
-        "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-        "Accept-Ranges": "bytes",
-        "Content-Length": contentLength,
-        "Content-Type": "video/mp4"
-      };
-
-      console.log("********** Video headers ************* " + range)
-      console.log("********** Start ************* " + start)
-      console.log("********** End ************* " + end)
-      console.log("********** chunkSize ************* " + chunkSize)
-
-      res.writeHead(206, headers)
-      const videoStream = fs.createReadStream(environment.OUTPUT_VIDEO_FILE_PATH, { start, end });
-      videoStream.pipe(res)
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error
-    })
-  }
-}
-
-exports.getOutputVideo = async (req, res) => {
   try {
-    const response = {
-      success: true,
-      outputUrl: ''
+    if (!req.query.clientId) {
+      req.query.clientId = environment.DEFAULT_CLIENT_ID
     }
 
-    if (fs.existsSync(environment.OUTPUT_VIDEO_FILE_PATH)) {
-      response.outputUrl = `${process.env.app_url}/assets/output/output.mp4`
-    }
-    res.status(200).send(response)
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error
-    })
-  }
-}
+    databaseService.findProgressData(req.query.inputFileName, req.query.clientId, 1).then(data => {
+      if (data) {
+        if (fs.existsSync(data.output_file_path)) {
+          console.log(
+            'Processed video found for the client with client id: ' +
+              req.query.clientId +
+              ' video path: ' +
+              data.output_file_path
+          )
+          const videoSize = fs.statSync(data.output_file_path).size
 
-exports.getVideos = async (req, res) => {
-  try {
-    const videoPath = path.resolve(__dirname, '../../resources/videos')
-    const openVideoPath = `${process.env.app_url}/api/pictures/videos`
-    if (!fs.existsSync(videoPath)) {
-      res.status(200).send({
-        success: true,
-        data: []
-      })
-    } else {
-      const responseData = []
-      const videoFiles = fs.readdirSync(videoPath)
-      for (const videoFile of videoFiles) {
-        const url = `${openVideoPath}/${videoFile}`
-        responseData.push({url})
+          const range = req.headers.range
+
+          if (!range) {
+            res.writeHead(200, {
+              'Content-Length': videoSize,
+              'Content-Type': 'video/mp4'
+            })
+
+            fs.createReadStream(data.output_file_path).pipe(res)
+          } else {
+            const chunkSize = 10 ** 6
+            const start = Number(range.replace(/\D/g, ''))
+            const end = Math.min(start + chunkSize, videoSize - 1)
+            const contentLength = end - start + 1
+
+            const headers = {
+              'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+              'Accept-Ranges': 'bytes',
+              'Content-Length': contentLength,
+              'Content-Type': 'video/mp4'
+            }
+
+            res.writeHead(206, headers)
+            console.log('Output video file : ' + data.output_file_path)
+            const videoStream = fs.createReadStream(data.output_file_path, { start, end })
+            videoStream.pipe(res)
+          }
+        }
+      } else {
+        console.log('Processed video not found for the client with client id: ' + req.query.clientId)
+        res.status(500).json({
+          success: false,
+          message: 'Processed video not found for the client with client id: ' + req.query.clientId
+        })
       }
-      res.status(200).send({
-        success: true,
-        data: responseData
-      })
-    }
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -262,8 +250,8 @@ exports.uploadVideo = async (req, res) => {
     }
 
     const oldPath = `${req.file.destination}/${req.file.filename}`
-    const is = fs.createReadStream(oldPath);
-    const os = fs.createWriteStream(environment.INPUT_VIDEO_FILE_PATH);
+    const is = fs.createReadStream(oldPath)
+    const os = fs.createWriteStream(process.env.VIDEO_PATH + environment.DEFAULT_VIDEO_FILE_NAME)
 
     is.pipe(os)
     is.on('end', () => {
@@ -276,6 +264,33 @@ exports.uploadVideo = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error
+    })
+  }
+}
+
+exports.getVideoList = async (req, res) => {
+  try {
+    if (!req.query.clientId) {
+      req.query.clientId = environment.DEFAULT_CLIENT_ID
+    }
+    databaseService.findProgressDataList(req.query.inputFileName, req.query.clientId).then(data => {
+      if (data) {
+        res.status(200).json({
+          success: true,
+          message: `Video list found for the client with client id: ${req.query.clientId}`,
+          data: data
+        })
+      } else {
+        res.status(500).json({
+          success: false,
+          message: `Video list not found for the client with client id: ${req.query.clientId}`
+        })
+      }
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Video list not found for the client with client id: ${req.query.clientId}`
     })
   }
 }

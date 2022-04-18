@@ -49,7 +49,11 @@ export class VideoListingComponent implements OnInit {
   }
 
   openVideoModal(template: any) {
-    this.videoService.checkOutputVideo().subscribe(
+    const data = {
+      clientId: 'SummarizationUI'
+    };
+
+    this.videoService.checkOutputVideo(data).subscribe(
       (res: any) => {
         this.videoExists = res.output;
         this.videoUrl = res.apiUrl;

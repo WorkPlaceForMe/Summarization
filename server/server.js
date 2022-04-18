@@ -156,8 +156,4 @@ require('./app/routes/video.routes')(app)
 // resources being served
 app.use('/api/pictures', express.static(picResourceFolderPath))
 
-app.use('/assets/video', express.static(environment.DEMO_PATH))
-
-app.use('/assets/output', express.static(environment.OUTPUT_PATH))
-
 module.exports = app

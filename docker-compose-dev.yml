@@ -30,6 +30,7 @@ services:
       - 3300:3300
     volumes:
       - ./video-summarization/Video_Summarization:/home/Video_Summarization
+      - /home/Multi_Tenant_App/resources:/home/Multi_Tenant_App/resources
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
     restart: always
