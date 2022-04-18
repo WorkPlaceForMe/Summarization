@@ -28,7 +28,7 @@ rm -f $outputFileName
 
 ffmpeg -i $inputFileName -ss $startTime -to $endTime -c copy input_trimmed.mp4 -y
 
-python3 demo_video_summarization.py --input input_trimmed.mp4 --out_filename $outputFileName --duration $duration --dont_show
+python3 demo_video_summarization.py --input input_trimmed.mp4 --out_filename output.mp4 --duration $duration --dont_show
 
-ffmpeg -i $outputFileName -vcodec libx264 output_x264.mp4 -y
+ffmpeg -i output.mp4 -vcodec libx264 output_x264.mp4 -y
 mv output_x264.mp4 $outputFileName
