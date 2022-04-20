@@ -1,6 +1,6 @@
 /**
  *
- * This file conatins environment specific configuation
+ * This file contains environment specific configuation
  */
 
 module.exports = {

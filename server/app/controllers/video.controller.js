@@ -288,14 +288,14 @@ exports.getVideoList = async (req, res) => {
     }
 
     databaseService.findProgressDataList(req.query.inputFileName, req.query.clientId).then(data => {
-      if (data) {
+      if (data && data.length > 0) {
         res.status(200).json({
           success: true,
           message: `Video list found for the client with client id: ${req.query.clientId}`,
           data: data
         })
       } else {
-        res.status(500).json({
+        res.status(404).json({
           success: false,
           message: `Video list not found for the client with client id: ${req.query.clientId}`
         })
