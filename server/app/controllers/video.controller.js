@@ -159,7 +159,7 @@ exports.checkOutputFile = async (req, res) => {
     const response = {
       success: true,
       output: false,
-      apiUrl: '/api/videoChunk'
+      apiUrl: '/api/video/videoChunk'
     }
 
     console.log('Client id: ' + req.body.clientId)

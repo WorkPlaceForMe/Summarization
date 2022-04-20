@@ -12,6 +12,6 @@ module.exports = function (app) {
   app.post('/api/video/process', controller.processVideo)
   app.post('/api/video', upload.single('uploadVideo'), controller.uploadVideo)
   app.post('/api/video/check', controller.checkOutputFile)
-  app.get('/api/videoChunk', controller.getOutputVideoStream)
+  app.get('/api/video/videoChunk', controller.getOutputVideoStream)
   app.get('/api/video/list', controller.getVideoList)
 }
