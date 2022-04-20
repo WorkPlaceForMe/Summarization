@@ -11,7 +11,6 @@ const mysql = require('mysql2/promise')
 const compression = require('compression')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
-const environment = require('./app/utils/environment')
 
 const resourcesFolderPath = path.resolve(__dirname, './resources/')
 const picResourceFolderPath = path.join(resourcesFolderPath)
@@ -51,8 +50,8 @@ app.use(bodyParser.json({limit: '10mb', extended: true}))
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
 app.all(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', `http://${process.env.my_ip}`)
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE')
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', '*')
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, x-access-token'
