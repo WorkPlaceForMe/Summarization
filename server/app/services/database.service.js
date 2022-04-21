@@ -1,11 +1,12 @@
 const db = require('../models')
+const environment = require('../utils/environment')
 
 exports.createProgressData = async (inputFilePath, outputFilePath, clientId) => {
   return db.progress.create({
     input_file_path: inputFilePath,
     output_file_path: outputFilePath,
     client_id: clientId,
-    progress_value: 0
+    progress_value: environment.SUMMARIZATION_STATUS_IN_PROGRESS
   })
 }
 
