@@ -130,14 +130,14 @@ exports.processVideo = async (req, res) => {
             (err, stdout, stderr) => {
               if (err) {
                 databaseService
-                  .updateProgressData(progress.id, -1)
+                  .updateProgressData(progress.id, environment.SUMMARIZATION_STATUS_ERROR)
                   .then(() => console.log('Row updated for error'))
                 console.log('======= Video Processing failed =======')
                 console.log(`error: ${err}`)
               } else {
                 console.log('======= Video Processing succeeded =======')
                 databaseService
-                  .updateProgressData(progress.id, 1)
+                  .updateProgressData(progress.id, environment.SUMMARIZATION_STATUS_COMPLETED)
                   .then(() => console.log('Row updated for success'))
                 console.log(`stdout: ${stdout}`)
                 console.log(`stderr: ${stderr}`)
@@ -166,7 +166,7 @@ exports.checkOutputFile = async (req, res) => {
     if (!req.body.clientId) {
       req.body.clientId = environment.DEFAULT_CLIENT_ID
     }
-    databaseService.findProgressData(req.body.inputFileName, req.body.clientId, 1).then(data => {
+    databaseService.findProgressData(req.body.inputFileName, req.body.clientId, environment.SUMMARIZATION_STATUS_COMPLETED).then(data => {
       if (data) {
         if (fs.existsSync(data.output_file_path)) {
           response.output = true
@@ -194,7 +194,7 @@ exports.getOutputVideoStream = async (req, res) => {
       req.query.inputFileName = req.query.inputFileName.split('\\').join(path.posix.sep)
     }
 
-    databaseService.findProgressData(req.query.inputFileName, req.query.clientId, 1).then(data => {
+    databaseService.findProgressData(req.query.inputFileName, req.query.clientId, environment.SUMMARIZATION_STATUS_COMPLETED).then(data => {
       if (data) {
         if (fs.existsSync(data.output_file_path)) {
           console.log(
